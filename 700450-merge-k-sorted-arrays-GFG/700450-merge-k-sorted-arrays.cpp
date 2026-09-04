@@ -1,35 +1,39 @@
 class Solution {
 public:
 
-    vector<int> mergeTwo(vector<int>& a, vector<int>& b) {
+    vector<int> mergeArrays(vector<vector<int>>& mat) {
 
         vector<int> ans;
 
-        int i = 0, j = 0;
+        // {value, row, column}
+        priority_queue<tuple<int, int, int>,vector<tuple<int, int, int>>,
+            greater<tuple<int, int, int>>> pq;
 
-        while (i < a.size() && j < b.size()) {
+        int k = mat.size();
 
-            if (a[i] <= b[j])
-                ans.push_back(a[i++]);
-            else
-                ans.push_back(b[j++]);
+        // Step 1: Push first element of every row
+        for (int i = 0; i < k; i++) {
+            pq.push({mat[i][0], i, 0});
         }
 
-        while (i < a.size())
-            ans.push_back(a[i++]);
+        // Step 2: Process heap
+        while (!pq.empty()) {
 
-        while (j < b.size())
-            ans.push_back(b[j++]);
+            auto [value, row, col] = pq.top();
+            pq.pop();
 
-        return ans;
-    }
+            // Add minimum element
+            ans.push_back(value);
 
-    vector<int> mergeArrays(vector<vector<int>>& mat) {
+            // Step 3: Push next element from same row
+            if (col + 1 < mat[row].size()) {
 
-        vector<int> ans = mat[0];
-
-        for (int i = 1; i < mat.size(); i++) {
-            ans = mergeTwo(ans, mat[i]);
+                pq.push({
+                    mat[row][col + 1],
+                    row,
+                    col + 1
+                });
+            }
         }
 
         return ans;
