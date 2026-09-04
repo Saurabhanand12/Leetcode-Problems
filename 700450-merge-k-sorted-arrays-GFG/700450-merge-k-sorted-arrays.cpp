@@ -1,19 +1,37 @@
 class Solution {
-  public:
-    vector<int> mergeArrays(vector<vector<int>> &mat) {
-        // Code here
+public:
+
+    vector<int> mergeTwo(vector<int>& a, vector<int>& b) {
+
         vector<int> ans;
-        int n = mat.size();
-        int m = mat[0].size();
-        
-        for(int i=0;i<n;i++){
-            for(int j=0;j<m;j++){
-                ans.push_back(mat[i][j]);
-            }
+
+        int i = 0, j = 0;
+
+        while (i < a.size() && j < b.size()) {
+
+            if (a[i] <= b[j])
+                ans.push_back(a[i++]);
+            else
+                ans.push_back(b[j++]);
         }
-        
-        sort(ans.begin(),ans.end());
-        
+
+        while (i < a.size())
+            ans.push_back(a[i++]);
+
+        while (j < b.size())
+            ans.push_back(b[j++]);
+
+        return ans;
+    }
+
+    vector<int> mergeArrays(vector<vector<int>>& mat) {
+
+        vector<int> ans = mat[0];
+
+        for (int i = 1; i < mat.size(); i++) {
+            ans = mergeTwo(ans, mat[i]);
+        }
+
         return ans;
     }
 };
