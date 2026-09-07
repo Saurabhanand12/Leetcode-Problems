@@ -1,28 +1,29 @@
 class myStack {
   public:
-    vector<int> st;
+    int st[1000];
     int n ;
+    int top;
     
     myStack(int n) {
         // Define Data Structures
         this -> n = n;
+        top = -1;
     }
 
     bool isEmpty() {
         // check if the stack is empt
-        if(st.size() > 0) return false;
-        else return true;
+        return top == -1;
     }
 
     bool isFull() {
-        if(st.size() == n) return true;
-        else return false;
+        return top == n-1;
     }
 
     void push(int x) {
         // inserts x at the top of the stack
         if(!isFull()){
-            st.push_back(x);
+            top++;
+            st[top] = x;
         }
         
     }
@@ -30,14 +31,14 @@ class myStack {
     void pop() {
         // removes an element from the top of the stack
         if(!isEmpty()){
-            st.pop_back();
+            top--;
         }
     }
 
     int peek() {
         // Returns the top element of the stack
         if(!isEmpty()){
-            return st.back();
+            return st[top];
         }
         return -1;
     }
