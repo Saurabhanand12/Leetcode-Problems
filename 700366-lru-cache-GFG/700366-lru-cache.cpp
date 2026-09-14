@@ -1,101 +1,105 @@
 class LRUCache {
 public:
-    int c;
-    stack<pair<int, int>> st;
 
-    LRUCache(int cap) {
-        c = cap;
+    class Node {
+    public:
+        int key;
+        int value;
+        Node* next;
+        Node* prev;
+
+        Node(int key, int value) {
+            this->key = key;
+            this->value = value;
+            next = NULL;
+            prev = NULL;
+        }
+    };
+
+    Node* head = new Node(-1, -1);
+    Node* tail = new Node(-1, -1);
+
+    int cap;
+
+    unordered_map<int, Node*> mp;
+
+    LRUCache(int capacity) {
+        cap = capacity;
+
+        head->next = tail;
+        tail->prev = head;
+    }
+
+    // Add node just after head
+    void addNode(Node* newNode) {
+
+        Node* temp = head->next;
+
+        newNode->next = temp;
+        newNode->prev = head;
+
+        head->next = newNode;
+        temp->prev = newNode;
+    }
+
+    // Delete node
+    void deleteNode(Node* delNode) {
+
+        Node* delPrev = delNode->prev;
+        Node* delNext = delNode->next;
+
+        delPrev->next = delNext;
+        delNext->prev = delPrev;
     }
 
     int get(int key) {
-        stack<pair<int, int>> temp;
-        int value = -1;
-        bool found = false;
 
-        while (!st.empty()) {
-            pair<int, int> top = st.top();
-            st.pop();
+        if (mp.find(key) == mp.end())
+            return -1;
 
-            if (key == top.first) {
-                found = true;
-                value = top.second;
-                break;
-            }
-            else {
-                temp.push(top);
-            }
-        }
+        Node* resNode = mp[key];
 
-        // Restore remaining elements
-        while (!temp.empty()) {
-            pair<int, int> top = temp.top();
-            temp.pop();
-            st.push(top);
-        }
+        int ans = resNode->value;
 
-        // If found, make it MRU
-        if (found) {
-            st.push({key, value});
-        }
+        // Remove from current position
+        deleteNode(resNode);
 
-        return value;
+        // Add at front = recently used
+        addNode(resNode);
+
+        return ans;
     }
 
     void put(int key, int value) {
-        stack<pair<int, int>> temp;
-        bool found = false;
-
-        // Remove key if it already exists
-        while (!st.empty()) {
-            pair<int, int> top = st.top();
-            st.pop();
-
-            if (top.first == key) {
-                found = true;
-            }
-            else {
-                temp.push(top);
-            }
-        }
-
-        // Restore remaining elements
-        while (!temp.empty()) {
-            pair<int, int> top = temp.top();
-            temp.pop();
-            st.push(top);
-        }
 
         // Key already exists
-        if (found) {
-            // Updated key becomes MRU
-            st.push({key, value});
-            return;
+        if (mp.find(key) != mp.end()) {
+
+            Node* existingNode = mp[key];
+
+            deleteNode(existingNode);
+
+            mp.erase(key);
         }
 
-        // Key is new
-        // If cache is full, remove LRU
-        if (st.size() == c) {
+        // Cache full
+        if (mp.size() == cap) {
 
-            stack<pair<int, int>> temp2;
+            Node* lruNode = tail->prev;
 
-            // Move everything except bottom element
-            while (st.size() > 1) {
-                temp2.push(st.top());
-                st.pop();
-            }
+            mp.erase(lruNode->key);
 
-            // Remove bottom = LRU
-            st.pop();
+            deleteNode(lruNode);
 
-            // Restore elements
-            while (!temp2.empty()) {
-                st.push(temp2.top());
-                temp2.pop();
-            }
+            delete lruNode;
         }
 
-        // Insert new key as MRU
-        st.push({key, value});
+        // Add new node at front
+        Node* newNode = new Node(key, value);
+
+        addNode(newNode);
+
+        mp[key] = newNode;
     }
 };
 
